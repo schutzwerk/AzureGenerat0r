@@ -1,6 +1,6 @@
-# Introduction <br />
+# Introduction / Blog Post <br />
 
-* For a first introudction to AzureGenerat0r please refer to the corresponding [blog post](https://www.schutzwerk.com/en/43/posts/azuregenerat0r/ ).*
+* For a first introudction to AzureGenerat0r please refer to the corresponding [blog post](https://www.schutzwerk.com/en/43/posts/azuregenerat0r/ ).
 
 # What is AzureGenerat0r? <br />
 AzureGenerat0r is a framework that creates infrastructure (VMs, NICs, subnets, routes,..) in Microsoft Azure via Terraform and uses modules (ansible-playbooks) to configure virtual machines.
