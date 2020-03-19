@@ -1,0 +1,24 @@
+---
+- hosts: all
+  gather_facts: no
+  vars:
+    domainName: ansible.local
+    ipDC: # mandatory
+    hostName: # mandatory
+    ouPath:
+  tasks:
+  - win_dns_client:
+      ipv4_addresses: '{{ipDC|mandatory}}'
+
+  - win_domain_membership:
+      dns_domain_name: '{{domainName}}'
+      hostname: '{{hostName|mandatory}}'
+      domain_admin_user: '{{ansible_user}}@{{domainName}}'
+      domain_admin_password: '{{ansible_password}}'
+      domain_ou_path: '{{ouPath}}'
+      state: domain
+    register: domain_state
+
+  - win_reboot:
+    when: domain_state.reboot_required
+

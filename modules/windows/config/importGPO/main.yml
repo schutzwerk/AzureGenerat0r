@@ -1,0 +1,33 @@
+# imports the specified GPO and links it with the specified OU.
+---
+- hosts: all
+  vars:
+    ouName:
+    srcGPO: ./{658FD395-BACC-43FB-95BA-5B6A381FEC4E}
+    srcGPOId: 658FD395-BACC-43FB-95BA-5B6A381FEC4E
+    srcMigTable: ./migrationTable.migtable
+    dstMigTable: C:\migrationTable.migtable
+    dstGPOName:
+    dstGPO: C:\
+  tasks:
+  - name: Copy GPO
+    win_copy:
+      src: '{{srcGPO}}'
+      dest: '{{dstGPO}}'
+
+  - name: Copy migrationtable
+    win_copy:
+      src: '{{srcMigTable}}'
+      dest: '{{dstMigTable}}'
+
+  - name: create a new GPO and link it to specified OU
+    win_shell: New-GPO -Name '{{dstGPOName}}' | New-GPLink -target '{{ouName}}'
+    register: commandExecuted
+  - debug:
+      var: commandExecuted
+
+  - name: import settings of the backupGPO
+    win_shell: Import-GPO -BackupId {{srcGPOId}} -TargetName '{{dstGPOName}}' -path '{{dstGPO}}' -MigrationTable '{{dstMigTable}}'
+    register: commandExecuted
+  - debug:
+      var: commandExecuted

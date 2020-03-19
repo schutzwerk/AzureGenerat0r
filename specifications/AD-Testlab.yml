@@ -1,0 +1,37 @@
+# This specification creates a Active Directory Multi Tier environment with two tiers.
+# Tier0 consists one VM (the DC of the domain ansible.local), that is only accessible by ADA.
+# Tier1 consists two VMs, which are only accessible by users from the Sales department.
+# Administrator of Tier1 is Alice, she is in the group SalesAdmin
+# In the second group are 200 more employees, who can log onto the computers of tier1 without admin rights.
+
+
+myPublicIP: none
+network:
+- addressSpace: 10.0.8.0/24
+  vms:
+  - system: WindowsServer
+    interfaces:
+    - [0, static, 10.0.8.100]
+    modules:
+    - path: windows/config/promoteToDC
+      args: {domainName: ansible.local}
+    - path: windows/config/createDomainUser
+      args: {user: [ADA], domainServer: myVM-00, groupToAddUser: Domain Admins}
+    - path: windows/config/createDomainGroup
+      args: {groupName: SalesEmployee}
+    - path: windows/config/createDomainGroup
+      args: {groupName: SalesAdmin}
+    - path: windows/config/createDomainUser
+      args: {user: [Alice], domainServer: myVM-00, groupToAddUser: SalesAdmin}
+    - path: windows/config/createOU
+      args: {ouName: Sales, path: "DC=ansible,DC=local"}
+    - path: windows/software/youzer
+      args: {ou: "ou=Sales,dc=ansible,dc=local", domain: ANSIBLE, numberOfUsers: 200, groupToAdd: SalesEmployee}
+    - path: windows/config/importGPO
+      args: {ouName: "ou=Sales,dc=ansible, dc=local", dstGPOName: SalesPolicy}
+  - system: WindowsServer
+    counter: 2
+    delayedEnrichment: true
+    modules:
+    - path: windows/config/addComputerToAD
+      args: {domainName: ansible.local, ipDC: 10.0.8.100, hostName: PLUGIN/hostnameGenerator, ouPath: "OU=Sales,DC=ansible,DC=local"}
