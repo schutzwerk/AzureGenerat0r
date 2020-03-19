@@ -1,0 +1,15 @@
+.idea
+.terraform
+__pycache__/
+*.pyc
+*.backup
+*.tfstate
+*.info
+*.retry
+shell/
+ansibleMultithreading/*
+src/ipListForAnsible.txt
+src/main.tf
+plugins/*storage.yml
+specification.yml
+configuration.yml

@@ -1,0 +1,13 @@
+# installs packages via apt. use packages names as parameters.
+---
+- name: This is a hello-world example
+  hosts: all
+  vars:
+    packages:  # as list, example: [vim, tmux]
+  become: yes
+  tasks:
+  - name: install packages
+    package:
+      name: '{{ item }}'
+      state: present
+    loop: '{{packages | mandatory}}'

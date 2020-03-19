@@ -1,0 +1,24 @@
+---
+- hosts: all
+  vars:
+    user:           # mandatory
+    domainServer:      # net-bios name, mandatory
+    groupToAddUser: Domain Users
+    ou:               # specify like 'ou=Sales,dc=domain,dc=local', optional
+    const: \
+  tasks:
+  - name: Creating users
+    win_domain_user:
+     name: "{{ item }}"
+     password: "{{ansible_password}}"
+     state: present
+     domain_username: "{{item}}{{const}}{{ansible_user}}" # name\adminName
+     domain_password: "{{ ansible_password }}"
+     domain_server: "{{ domainServer | mandatory }}"
+     groups: "{{ groupToAddUser }}"
+     groups_action: add
+     path: "{{ ou }}"
+    loop: "{{ user | mandatory}}"
+  - debug:
+      var: domain_username
+      verbosity: 4

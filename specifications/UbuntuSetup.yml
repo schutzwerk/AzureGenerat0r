@@ -1,0 +1,11 @@
+# Jonas ubuntu setup
+myPublicIP: none
+network:
+  - addressSpace: 10.0.8.0/24
+    vms:
+    - system: UbuntuServer
+      interfaces:
+      - [0, static, 10.0.8.100]
+      modules:
+      - path: linux/software/aptInstaller
+        args: {packages: [postgresql]}

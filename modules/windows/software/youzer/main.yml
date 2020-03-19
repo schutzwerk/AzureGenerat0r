@@ -1,0 +1,64 @@
+# creates n random users into an existing OU. Optional you can add them to a group.
+---
+- hosts: all
+  vars:
+    ou:                                 # example: ou=Sales,dc=ANSIBLE,dc=local
+    domain:                             # example: ANSIBLE
+    numberOfUsers: 500
+    groupToAdd:
+    srcYouzer: ./youzer.py
+    srcPython: ./python-3.7.3.exe
+    passwordList: false
+    srcWordlist: ./probable-v2-top12000.txt
+    dstYouzer: '{{baseDir}}\youzer.py'
+    dstPython: '{{baseDir}}\python-3.7.3.exe'
+    dstWordlist: '{{baseDir}}\probable-v2-top12000.txt'
+    baseDir: 'C:\users\{{ansible_user}}\youzer'
+  tasks:
+  - name: Create temporary directory
+    win_file:
+      path: '{{baseDir}}'
+      state: directory
+
+  - name: Copy python installer
+    win_copy:
+      src: '{{srcPython}}'
+      dest: '{{dstPython}}'
+
+  - name: Copy youzer
+    win_copy:
+      src: '{{srcYouzer}}'
+      dest: '{{dstYouzer}}'
+
+  - name: Copy wordlist
+    win_copy:
+      src: '{{srcWordlist}}'
+      dest: '{{dstWordlist}}'
+    when: passwordList
+
+  - name: Install python
+    win_shell: '{{dstPython}} /quiet InstallAllUsers=1 PrependPath=1 Include_test=0'
+
+  - name: Install faker library for python3
+    win_shell: pip.exe install faker
+
+  - name: Start youzer to create the powershell script
+    win_shell: 'python {{baseDir}}\youzer.py --wordlist probable-v2-top12000.txt --ou "{{ou}}" --domain {{domain}} --users {{numberOfUsers}} --output {{baseDir}}\createUsers.csv'
+    when: passwordList
+
+  - name: Start youzer to create the powershell script
+    win_shell: 'python {{baseDir}}\youzer.py --generate --generate_length 20 --ou "{{ou}}" --domain {{domain}} --users {{numberOfUsers}} --output {{baseDir}}\createUsers.csv'
+    when: not passwordList
+
+  - name: Create users via powershell script
+    win_shell: '{{baseDir}}\createUsers.ps1'
+
+  - name: Send back a list of created users and their passwords to the ansibleMultithreading directory
+    fetch:
+      src: '{{baseDir}}\createUsers.csv'
+      dest: ../../../../ansibleMultithreading/createdUsers.csv
+      flat: yes
+      fail_on_missing: yes
+
+  - name: add all created users to a group
+    win_shell: 'Get-ADUser -SearchBase ‘{{ou}}’ -Filter * | ForEach-Object {Add-ADGroupMember -Identity ‘{{groupToAdd}}’ -Members $_ }'

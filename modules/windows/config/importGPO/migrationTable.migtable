@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-16"?>
+<MigrationTable xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.microsoft.com/GroupPolicy/GPOOperations/MigrationTable">
+  <Mapping>
+    <Type>GlobalGroup</Type>
+    <Source>SalesEmployee@ansible.local</Source>
+    <Destination>SalesEmployee@ansible.local</Destination>
+  </Mapping>
+  <Mapping>
+    <Type>GlobalGroup</Type>
+    <Source>SalesAdmin@ansible.local</Source>
+    <Destination>SalesAdmin@ansible.local</Destination>
+  </Mapping>
+  <Mapping>
+    <Type>GlobalGroup</Type>
+    <Source>Domain Admins@ansible.local</Source>
+    <Destination>Domain Admins@ansible.local</Destination>
+  </Mapping>
+</MigrationTable>

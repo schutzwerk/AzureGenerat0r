@@ -1,0 +1,14 @@
+# creates the files that are specified in the files variable
+# var       type
+# files     List
+
+---
+- name: This is a hello-world example
+  hosts: all
+  vars:
+    files: ["helloWorld"]
+  become: yes
+  tasks:
+  - name: Create a file '{{ item }}'.txt with the content '{{ item }}'.
+    copy: content="{{ item }}\n" dest=/tmp/{{ item }}.txt
+    loop: "{{ files }}"

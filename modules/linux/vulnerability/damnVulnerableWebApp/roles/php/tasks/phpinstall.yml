@@ -1,0 +1,16 @@
+---
+- apt_repository:
+    repo: ppa:ondrej/php
+
+- name: install php 
+  apt: name={{ item }} state=present
+
+  with_items:
+    - php5.6
+    - php5.6-mysql
+    - libapache2-mod-php5.6
+    - php5.6-gd
+
+    
+  notify:
+    - restart apache
