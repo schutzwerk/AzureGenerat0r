@@ -1,0 +1,10 @@
+---
+- hosts: all
+  vars:
+    group_name:
+    scope: global
+  tasks:
+  - name: create domain group
+    win_domain_group:
+      name: "{{ group_name }}"
+      scope: "{{ scope }}"
