@@ -6,6 +6,8 @@ from src.Controller import *
 from src.Completer import Completer
 from src.Setup import setup
 
+version = "1.1"
+
 def print_banner():
     '''
     prints the banner of AzureGenerat0r
@@ -19,8 +21,10 @@ def print_banner():
 |  _  |_  / | | | '__/ _ \ | __ / _ \ '_ \ / _ \ '__/ _` | __|  /| | '__|
 | | | |/ /| |_| | | |  __/ |_\ \  __/ | | |  __/ | | (_| | |_\ |_/ / |   
 \_| |_/___|\__,_|_|  \___|\____/\___|_| |_|\___|_|  \__,_|\__|\___/|_|   
-                                                                         
-                                                                         """)
+
+version %s
+
+                                                                         """ % version)
 
 
 def print_usage():

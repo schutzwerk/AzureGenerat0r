@@ -28,12 +28,12 @@ data_storage_account_type: Standard_LRS """
 spec = "# specify here. for example see specifications/repoExample"
 
 def create_configuration_file():
-    with open('../configuration.yml', 'w+') as outfile:
+    with open('./configuration.yml', 'w+') as outfile:
         outfile.write(config)
         outfile.close()
 
 def create_specification_file():
-    with open('../specification.yml', 'w+') as outfile:
+    with open('./specification.yml', 'w+') as outfile:
         outfile.write(spec)
         outfile.close()
 
@@ -43,4 +43,4 @@ creates configuration and specification files
 def setup():
     create_configuration_file()
     create_specification_file()
-    Path("../ansible").mkdir(parents=True, exist_ok=True)
+    Path("./ansible").mkdir(parents=True, exist_ok=True)
