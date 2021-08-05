@@ -26,7 +26,7 @@ class Mapper:
         ListStrategies.strategy_index_merging = Mapper.strategy_index_merging
         merger = Merger([(list, ['index_merging']), (dict, ['merge'])], ['use_existing'], ['use_existing'])
 
-        innerMappings = [
+        inner_mappings = [
             {'resource': 'virtual_network', 'resource_group_name': Configuration.resource_group, 'location': Configuration.location},
             {'resource': 'subnet', 'resource_group_name': Configuration.resource_group},
             {'resource': 'container_registry', 'resource_group_name': Configuration.resource_group, 'location': Configuration.location},
@@ -43,16 +43,16 @@ class Mapper:
         ]
 
 
-        outerMappings = [
+        outer_mappings = [
             {'resource': 'windows_virtual_machine', 'create': 'virtual_machine_extension', 'name': 'script', 'virtual_machine_id': Connecter.DUMMY + '.id', 'publisher': 'Microsoft.Compute', 'type': 'CustomScriptExtension', 'type_handler_version': '1.9', 'settings': '{"fileUris": ["https://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1"]}', 'protected_settings': '{"commandToExecute": "powershell.exe -executionpolicy Unrestricted -file ./ConfigureRemotingForAnsible.ps1 -ForceNewSSLCert"}'}
         ]
 
-        for m in innerMappings:
+        for m in inner_mappings:
             for r in data:
                 if (r['resource'] == m['resource']):
                     merger.merge(r, m)
 
-        for m in outerMappings:
+        for m in outer_mappings:
             id = 0
             for r in data:
                 if (r['resource'] == m['resource']):

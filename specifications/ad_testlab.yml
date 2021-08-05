@@ -1,8 +1,11 @@
-# You can create resources similar to terraform
-# checkout resources and there attributes here https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_virtual_machine
+# checkout resources and their attributes here https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_virtual_machine
+# To deploy a AzureRM resource like azurerm_virtual_machine use virtual_machinein your specification.
+# To deploy a AzureAD resource like azuread_service_principal use service_principal in your specification.
 # Each resource in AzureGenerat0r has an implied id starting from zero
 # you can connect elements by using CONNECT/id.attribute
 # you can activate plugins by using PLUGIN/pluginname
+# Default values for resources can be defined in the inner_mappings array in Controller.py
+# Default connections to other resources can be defined in the outer_mappings array in Controller.py
 
 # This specification creates a Active Directory environment with two tiers.
 # Tier0 consists one VM (the DC of the domain ansible.local), that is only accessible by ADA.
