@@ -1,0 +1,11 @@
+---
+- hosts: all
+  vars:
+    ou_name: # mandatory
+    path: # mandatory
+  tasks:
+  - name: create ou
+    win_shell: New-ADOrganizationalUnit -Name {{ou_name|mandatory}} -Path "{{path|mandatory}}"
+    register: command_executed
+  - debug:
+      var: command_executed

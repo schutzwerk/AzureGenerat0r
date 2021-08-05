@@ -1,0 +1,126 @@
+# You can create resources similar to terraform
+# checkout resources and there attributes here https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/linux_virtual_machine
+# Each resource in AzureGenerat0r has an implied id starting from zero
+# you can connect elements by using CONNECT/id.attribute
+# you can activate plugins by using PLUGIN/pluginname
+
+# This specification creates a Active Directory environment with two tiers.
+# Tier0 consists one VM (the DC of the domain ansible.local), that is only accessible by ADA.
+# Tier1 consists two VMs, which are only accessible by users from the Sales department.
+# Administrator of Tier1 is Alice, she is in the group SalesAdmin
+# In the second group are 200 more employees, who can log onto the computers of tier1 without admin rights.
+
+- resource: virtual_network
+  name: network
+  address_space: [10.0.0.0/16]
+
+- resource: subnet
+  name: subnet1
+  virtual_network_name: CONNECT/0.name
+  address_prefixes: [10.0.1.0/24]
+
+- resource: subnet
+  name: subnet2
+  virtual_network_name: CONNECT/0.name
+  address_prefixes: [10.0.2.0/24]
+
+- resource: user
+  user_principal_name: jdoe@jdoe.onmicrosoft.com
+  display_name: J. Doe
+  mail_nickname: jdoe
+  password: SecretP@sswd99
+
+- resource: network_interface
+  name: nic_vm1
+  ip_configuration:
+    name: ipconfig
+    private_ip_address_allocation: Static
+    private_ip_address: 10.0.1.100
+    subnet_id: CONNECT/1.id
+    public_ip_address_id: CONNECT/8.id
+
+- resource: network_interface
+  name: nic_vm2
+  ip_configuration:
+    name: ipconfig
+    private_ip_address_allocation: Dynamic
+    subnet_id: CONNECT/1.id
+    public_ip_address_id: CONNECT/9.id
+
+
+- resource: network_interface
+  name: nic_vm3
+  ip_configuration:
+    name: ipconfig
+    private_ip_address_allocation: Dynamic
+    subnet_id: CONNECT/1.id
+    public_ip_address_id: CONNECT/10.id
+
+- resource: network_interface
+  name: nic_vm4
+  ip_configuration:
+    name: ipconfig
+    private_ip_address_allocation: Dynamic
+    subnet_id: CONNECT/2.id
+    public_ip_address_id: CONNECT/11.id
+
+#8
+
+- resource: public_ip
+  name: publicip_vm1
+
+- resource: public_ip
+  name: publicip_vm2
+
+- resource: public_ip
+  name: publicip_vm3
+
+- resource: public_ip
+  name: publicip_vm4
+
+#12
+- resource: windows_virtual_machine
+  name: vm1
+  network_interface_ids: [CONNECT/4.id]
+  playbooks:
+    - path: windows/config/promote_to_dc
+      args: {domain_name: ansible.local}
+    - path: windows/config/create_domain_user
+      args: {user: [bob, alice], domain_server: vm1}
+    - path: windows/config/create_domain_user
+      args: {user: [ADA], domain_server: vm1, group_to_add_user: Domain Admins}
+    - path: windows/config/create_domain_group
+      args: {group_name: SalesEmployee}
+    - path: windows/config/create_domain_group
+      args: {group_name: SalesAdmin}
+    - path: windows/config/create_domain_user
+      args: {user: [Alice], domain_server: vm1, group_to_add_user: SalesAdmin}
+    - path: windows/config/create_ou
+      args: {ou_name: Sales, path: "DC=ansible,DC=local"}
+    - path: windows/software/youzer
+      args: {ou: "ou=Sales,dc=ansible,dc=local", domain: ANSIBLE, number_of_users: 200, group_to_add: SalesEmployee}
+    - path: windows/config/import_gpo
+      args: {ou_name: "ou=Sales,dc=ansible, dc=local", dst_gpo_name: SalesPolicy}
+
+- resource: windows_virtual_machine
+  name: PLUGIN/hostname_generator
+  network_interface_ids: [CONNECT/5.id]
+  delayed: true
+  playbooks:
+    - path: windows/config/add_vm_to_ad
+      args: {domain_name: ansible.local, ip_dc: 10.0.1.100, host_name: PLUGIN/hostname_generator} 
+
+- resource: windows_virtual_machine
+  name: vm3
+  network_interface_ids: [CONNECT/6.id]
+  delayed: true
+  playbooks:
+    - path: windows/config/add_vm_to_ad
+      args: {domain_name: ansible.local, ip_dc: 10.0.1.100, host_name: PLUGIN/hostname_generator} 
+
+- resource: linux_virtual_machine
+  name: vm4
+  network_interface_ids: [CONNECT/7.id]
+  playbooks:
+  - type: vulnerability
+    properties: {has_cve: true}

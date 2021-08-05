@@ -1,0 +1,60 @@
+# creates n random users into an existing OU. Optional you can add them to a group.
+---
+- hosts: all
+  vars:
+    src_youzer: ./youzer.py
+    src_python: ./python-3.7.3.exe
+    password_list: false
+    src_wordlist: ./probable-v2-top12000.txt
+    dst_youzer: '{{base_dir}}\youzer.py'
+    dst_python: '{{base_dir}}\python-3.7.3.exe'
+    dst_wordlist: '{{base_dir}}\probable-v2-top12000.txt'
+    base_dir: 'C:\users\{{ansible_user}}\youzer'
+  tasks:
+  - name: Create temporary directory
+    win_file:
+      path: '{{base_dir}}'
+      state: directory
+
+  - name: Copy python installer
+    win_copy:
+      src: '{{src_python}}'
+      dest: '{{dst_python}}'
+
+  - name: Copy youzer
+    win_copy:
+      src: '{{src_youzer}}'
+      dest: '{{dst_youzer}}'
+
+  - name: Copy wordlist
+    win_copy:
+      src: '{{src_wordlist}}'
+      dest: '{{dst_wordlist}}'
+    when: password_list
+
+  - name: Install python
+    win_shell: '{{dst_python}} /quiet InstallAllUsers=1 PrependPath=1 Include_test=0'
+
+  - name: Install faker library for python3
+    win_shell: pip.exe install faker
+
+  - name: Start youzer to create the powershell script
+    win_shell: 'python {{base_dir}}\youzer.py --wordlist probable-v2-top12000.txt --ou "{{ou}}" --domain {{domain}} --users {{number_of_users}} --output {{base_dir}}\create_users.csv'
+    when: password_list
+
+  - name: Start youzer to create the powershell script
+    win_shell: 'python {{base_dir}}\youzer.py --generate --generate_length 20 --ou "{{ou}}" --domain {{domain}} --users {{number_of_users}} --output {{base_dir}}\create_users.csv'
+    when: not password_list
+
+  - name: Create users via powershell script
+    win_shell: '{{base_dir}}\create_users.ps1'
+
+  - name: Send back a list of created users and their passwords to the ansible directory
+    fetch:
+      src: '{{base_dir}}\create_users.csv'
+      dest: ../../../../ansible/created_users.csv
+      flat: yes
+      fail_on_missing: yes
+
+  - name: add all created users to a group
+    win_shell: 'Get-ADUser -SearchBase ‘{{ou}}’ -Filter * | ForEach-Object {Add-ADGroupMember -Identity ‘{{group_to_add}}’ -Members $_ }'

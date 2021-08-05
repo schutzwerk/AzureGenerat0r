@@ -1,15 +1,12 @@
 #!/usr/bin/env python
 #
-import sys, os, readline
-from src import Preprocessor, VmCreator, VmEnricher, Parser
-from src.Model import Network, Configuration
-import json
+import sys, os, readline, json, argparse, paramiko
+from src.Model import *
+from src.Controller import *
 from src.Completer import Completer
 from src.Setup import setup
-import argparse
 
-
-def printBanner():
+def print_banner():
     '''
     prints the banner of AzureGenerat0r
     '''
@@ -26,7 +23,7 @@ def printBanner():
                                                                          """)
 
 
-def printUsage():
+def print_usage():
     '''
     prints the usage of AzureGenerat0r
     '''
@@ -37,35 +34,18 @@ def printUsage():
         "enrich      - enriches existing VMs in Azure \n"
         "godmode     - creates infrastructure and enriches machines in one (long-lasting) step. \n"
         "destroy     - destroys infrastructure in Azure \n"
-        "showIPs     - shows IPs of existing VMs \n"
-        "reload      - reinitializes the model by reading the specification \n"
-        "printModel  - prints current model \n"
+        "ips         - shows IPs of existing VMs \n"
         "refresh     - refreshes Terraform state file \n"
         "exit        - exit AzureGenerat0r \n \n")
+        
 
-
-
-def initializeModel():
-    '''
-    initializes the model by using the Parser and the Preprocessor
-    '''
-
-    Network.networkModel = None
-    Network.numberOfSubnets = 0
-    Network.numberOfVms = 0
-    Network.subnetDefaultId = 1
-    Parser.parseSpecification()
-    Preprocessor.processTemplates()
-    Preprocessor.processPlugins()
-
-
-def readCommands():
+def read_commands():
     '''
     a loop where commands are read and executed
     '''
 
     completer = Completer(
-        ["create", "destroy", "enrich", "exit", "godmode", "help", "printModel", "refresh", "reload", "showIPs"])
+        ["create", "destroy", "enrich", "exit", "godmode", "help", "refresh", "ips"])
     readline.set_completer(completer.complete)
     readline.parse_and_bind('tab: complete')
     exit = False
@@ -73,42 +53,52 @@ def readCommands():
         while exit is False:
             command = input(">> ")
             if command == "create":
-                VmCreator.main()
+                Specification.init()    
+                Mapper.process(Specification.data)
+                Pluginer.process(Specification.data)
+                Connecter.process(Specification.data)
+                Predeployer.process(Specification.data)
+                Deployer.process(Specification.data)
             elif command == "enrich":
-                VmEnricher.main()
+                Specification.init()
+                Pluginer.process(Specification.data_enricher) 
+                Enricher.process(Specification.data_enricher)
             elif command == "godmode":
-                VmCreator.main()
-                VmEnricher.main()
-            elif command == "showIPs":
+                Specification.init()    
+                Mapper.process(Specification.data)
+                Pluginer.process(Specification.data)
+                Connecter.process(Specification.data)
+                Predeployer.process(Specification.data)
+                Deployer.process(Specification.data)
+                Pluginer.process(Specification.data_enricher)
+                Enricher.process(Specification.data_enricher)
+            elif command == "ips":
                 os.system("terraform output")
-            elif command == "reload":
-                initializeModel()
-                print("The specification has been reloaded successfully.")
             elif command == "destroy":
                 os.system("terraform destroy --auto-approve")
             elif command == "refresh":
                 os.system("terraform refresh")
-            elif command == "printModel":
-                print(repr(Network.networkModel))
             elif command == "help":
-                printUsage()
+                print_usage()
             elif command == "exit":
                 sys.exit(0)
     except (KeyboardInterrupt):
         pass
 
-
 if __name__ == '__main__':
-    os.chdir("./src")
+    # setup
     parser = argparse.ArgumentParser()
     parser.add_argument('--setup', action='store_true')
     args = parser.parse_args()
     if args.setup:
         setup()
         exit(0)
-    Parser.parseConfiguration()
-    os.system('ssh-add ' + Configuration.sshKeyPrivate)  # add priv. key for ansible
-    printBanner()
-    printUsage()
-    initializeModel()
-    readCommands()
+
+    os.chdir('./src')
+    Configuration.init()
+    # set environment for ansible 
+    os.environ['ANSIBLE_HOST_KEY_CHECKING'] = str(Configuration.ansible_host_key_checking)
+    
+    print_banner()
+    print_usage()
+    read_commands()
