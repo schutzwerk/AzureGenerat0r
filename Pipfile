@@ -7,7 +7,7 @@ verify_ssl = true
 
 [packages]
 adal = "==1.2.1"
-ansible = "==2.10.7"
+ansible = "==4.2.0"
 antlr4-python3-runtime = "==4.7.2"
 applicationinsights = "==0.11.7"
 argcomplete = "==1.10.0"
