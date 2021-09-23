@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "465279e2c2cb508e841fd969fa87a574faaf1c78ec18f6197cf745697d692e0f"
+            "sha256": "5168d425dcf9c6873f1eef45c320884257df69948fa1081f22e149a4e83e66f9"
         },
         "pipfile-spec": 6,
         "requires": {},
@@ -24,17 +24,17 @@
         },
         "ansible": {
             "hashes": [
-                "sha256:9ff024500116d53c460cb09ea92e3c9404119f100d1d1ff0de69a9dafca561d5"
+                "sha256:737d819ffbd7a80c28795b4edd93e59ad21e6e6d53af0d19f57412814f9260d0"
             ],
             "index": "pypi",
-            "version": "==2.10.7"
+            "version": "==4.2.0"
         },
-        "ansible-base": {
+        "ansible-core": {
             "hashes": [
-                "sha256:a96556e2d239f9283e15654d40c1aa86682a4e7b43f50b5ff022bc8e42b69878"
+                "sha256:7d3ce47014122907454704363485e48513f8ad0f00138b88870eb6d88953d121"
             ],
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4'",
-            "version": "==2.10.12"
+            "version": "==2.11.5"
         },
         "antlr4-python3-runtime": {
             "hashes": [
@@ -560,6 +560,13 @@
             ],
             "index": "pypi",
             "version": "==1.2.0"
+        },
+        "resolvelib": {
+            "hashes": [
+                "sha256:8113ae3ed6d33c6be0bcbf03ffeb06c0995c099b7b8aaa5ddf2e9b3b3df4e915",
+                "sha256:9b9b80d5c60e4c2a8b7fbf0712c3449dc01d74e215632e5199850c9eca687628"
+            ],
+            "version": "==0.5.4"
         },
         "scp": {
             "hashes": [
